@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI delivery reporting demo (sample data)</title>
+<meta name="description" content="A demo of AI agents that draft delivery reporting across the product lifecycle, with a person reviewing each draft. All data is fictional.">
+<style>
+  :root {
+    --bg: #F2F5F7;
+    --surface: #FFFFFF;
+    --ink: #16222C;
+    --muted: #54626E;
+    --line: #D5DCE2;
+    --brand: #28398C;
+    --brand-soft: #E3E8F8;
+    --green: #1F7653;
+    --green-soft: #DDF0E7;
+    --amber: #9A5C00;
+    --amber-soft: #FBEBCB;
+    --red: #B02F25;
+    --red-soft: #F9DEDA;
+    --sev-critical: #8E2219;
+    --sev-high: #C9532B;
+    --sev-medium: #D9A441;
+    --sev-low: #A9B7C2;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #10171D;
+      --surface: #18222A;
+      --ink: #E7EDF1;
+      --muted: #9DABB6;
+      --line: #2C3A46;
+      --brand: #93A5F2;
+      --brand-soft: #222D57;
+      --green: #62C79D;
+      --green-soft: #17382B;
+      --amber: #E3A94A;
+      --amber-soft: #3D2E10;
+      --red: #F0847A;
+      --red-soft: #461D19;
+      --sev-critical: #F0847A;
+      --sev-high: #E58A5F;
+      --sev-medium: #D9A441;
+      --sev-low: #6F808D;
+      color-scheme: dark;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-padding-top: 1rem; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Avenir Next", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+  }
+  .serif { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+
+  .notice {
+    background: var(--brand-soft);
+    color: var(--ink);
+    border-bottom: 1px solid var(--line);
+    font-size: 0.9rem;
+    padding: 10px 0;
+  }
+  .notice strong { font-weight: 600; }
+
+  header.top { padding: 32px 0 20px; }
+  h1 {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(1.7rem, 3.4vw, 2.4rem);
+    line-height: 1.15;
+    letter-spacing: -0.012em;
+    margin: 0 0 10px;
+    max-width: 24ch;
+  }
+  .lede { color: var(--muted); max-width: 62ch; margin: 0; }
+
+  .agents {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 24px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .agents li {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--brand);
+    border-radius: 4px;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+  }
+  .agents b { display: block; font-weight: 600; margin-bottom: 2px; }
+  .agents span { color: var(--muted); }
+
+  /* Lifecycle strip */
+  .strip-title { margin: 28px 0 10px; font-size: 1rem; font-weight: 600; }
+  .strip {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .phase {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-top: 5px solid var(--green);
+    border-radius: 4px;
+    padding: 12px 12px 14px;
+  }
+  .phase.watch { border-top-color: var(--amber); }
+  .phase.risk { border-top-color: var(--red); }
+  .phase .name { font-weight: 600; font-size: 0.95rem; }
+  .phase .count { font-family: "Iowan Old Style", Georgia, serif; font-size: 1.9rem; line-height: 1.1; margin: 6px 0 2px; }
+  .phase .sub { font-size: 0.82rem; color: var(--muted); }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin: 32px 0 0;
+    border-bottom: 1px solid var(--line);
+    overflow-x: auto;
+  }
+  .tab {
+    appearance: none;
+    background: none;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    color: var(--muted);
+    font: inherit;
+    font-weight: 600;
+    padding: 10px 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    margin-bottom: -1px;
+  }
+  .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--brand); }
+  .tab:hover { color: var(--ink); }
+  .badge {
+    display: inline-block;
+    min-width: 1.4em;
+    padding: 0 6px;
+    margin-left: 6px;
+    border-radius: 999px;
+    background: var(--brand);
+    color: var(--surface);
+    font-size: 0.78rem;
+    text-align: center;
+  }
+  :focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+
+  main { padding: 24px 0 56px; }
+  .panel[hidden] { display: none; }
+  h2 { font-size: 1.15rem; margin: 0 0 4px; font-weight: 600; }
+  .hint { color: var(--muted); font-size: 0.9rem; margin: 0 0 16px; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 18px 20px;
+  }
+  .stack > * + * { margin-top: 20px; }
+
+  .draft-head { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+  .tag {
+    display: inline-block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: var(--amber-soft);
+    color: var(--amber);
+  }
+  .tag.done { background: var(--green-soft); color: var(--green); }
+  .tag.no { background: var(--red-soft); color: var(--red); }
+  .summary-text { margin: 0; max-width: 70ch; }
+  .link {
+    background: none; border: 0; padding: 0; font: inherit;
+    color: var(--brand); text-decoration: underline; cursor: pointer;
+  }
+
+  /* Filters */
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .chip {
+    font: inherit;
+    font-size: 0.9rem;
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 4px 14px;
+    cursor: pointer;
+  }
+  .chip[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: var(--surface); }
+
+  /* Table */
+  .scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; min-width: 820px; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-weight: 600; color: var(--muted); font-size: 0.85rem; background: var(--surface); }
+  tr:last-child td { border-bottom: 0; }
+  td.pod { font-weight: 600; white-space: nowrap; }
+  td.note { color: var(--muted); min-width: 260px; }
+  .pill { display: inline-block; font-size: 0.82rem; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+  .pill.green { background: var(--green-soft); color: var(--green); }
+  .pill.amber { background: var(--amber-soft); color: var(--amber); }
+  .pill.red { background: var(--red-soft); color: var(--red); }
+  .meter { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .meter i { display: block; width: 54px; height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+  .meter i b { display: block; height: 100%; background: var(--brand); }
+
+  /* Metrics */
+  .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .chart h3 { font-size: 0.98rem; margin: 0; font-weight: 600; }
+  .chart p { margin: 2px 0 8px; color: var(--muted); font-size: 0.86rem; }
+  .chart svg { width: 100%; height: auto; display: block; }
+  .chart svg .grid { stroke: var(--line); stroke-width: 1; }
+  .chart svg .ln { fill: none; stroke: var(--brand); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+  .chart svg .dot { fill: var(--brand); }
+  .chart svg text { fill: var(--muted); font-size: 10px; font-family: inherit; }
+  .chart svg text.val { fill: var(--ink); font-size: 12px; font-weight: 600; }
+
+  .alloc { display: flex; height: 34px; border-radius: 4px; overflow: hidden; border: 1px solid var(--line); }
+  .alloc div { display: flex; align-items: center; padding-left: 8px; font-size: 0.82rem; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 10px 0 0; padding: 0; list-style: none; font-size: 0.86rem; color: var(--muted); }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+
+  /* Quality */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; }
+  .stat .n { font-family: "Iowan Old Style", Georgia, serif; font-size: 1.8rem; line-height: 1.1; }
+  .stat .l { color: var(--muted); font-size: 0.86rem; }
+
+  .bars { display: grid; gap: 7px; }
+  .barrow { display: grid; grid-template-columns: 150px 1fr 30px; gap: 10px; align-items: center; font-size: 0.9rem; }
+  .bar { display: flex; height: 14px; }
+  .bar span { display: block; height: 100%; }
+  .bar span:first-child { border-radius: 3px 0 0 3px; }
+  .bar span:last-child { border-radius: 0 3px 3px 0; }
+  .barrow .tot { text-align: right; color: var(--muted); }
+
+  .cell { display: inline-block; font-size: 0.8rem; font-weight: 600; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+  .cell.pass { background: var(--green-soft); color: var(--green); }
+  .cell.prog { background: var(--brand-soft); color: var(--brand); }
+  .cell.block { background: var(--red-soft); color: var(--red); }
+  .cell.pend { background: transparent; color: var(--muted); border: 1px dashed var(--line); }
+
+  /* Review */
+  .review { display: grid; gap: 14px; }
+  .item h3 { font-size: 1rem; margin: 0; font-weight: 600; }
+  .item .who { color: var(--muted); font-size: 0.86rem; margin: 2px 0 10px; }
+  .item textarea {
+    width: 100%; min-height: 90px; font: inherit; color: var(--ink); background: var(--bg);
+    border: 1px solid var(--line); border-radius: 4px; padding: 8px 10px; resize: vertical;
+  }
+  .item p.body { margin: 0 0 12px; max-width: 70ch; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .btn {
+    font: inherit; font-weight: 600; font-size: 0.92rem; cursor: pointer;
+    padding: 6px 16px; border-radius: 4px; border: 1px solid var(--line);
+    background: var(--surface); color: var(--ink);
+  }
+  .btn.primary { background: var(--brand); border-color: var(--brand); color: var(--surface); }
+  .btn:hover { filter: brightness(0.96); }
+  .reset { margin-top: 16px; }
+
+  .about { margin-top: 36px; color: var(--muted); font-size: 0.9rem; max-width: 70ch; }
+  .about h2 { color: var(--ink); }
+
+  @media (max-width: 860px) {
+    .strip { grid-template-columns: repeat(3, 1fr); }
+    .agents { grid-template-columns: 1fr; }
+    .grid2 { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .barrow { grid-template-columns: 110px 1fr 28px; }
+  }
+  @media (max-width: 480px) {
+    .strip { grid-template-columns: repeat(2, 1fr); }
+    .wrap { padding: 0 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="notice">
+  <div class="wrap"><strong>Sample data only.</strong> The company, teams, and numbers on this page are made up. Nothing here comes from a real organization.</div>
+</div>
+
+<header class="top">
+  <div class="wrap">
+    <h1>Delivery reporting across the product lifecycle</h1>
+    <p class="lede">Three agents read delivery, metrics, and test data, then draft the reporting. A person reviews each draft before anything goes to leadership. The sample company is Larkspur Financial, week of October 26.</p>
+
+    <ul class="agents">
+      <li><b>Status Agent</b><span>Milestones, risks, dependencies, and the weekly executive summary.</span></li>
+      <li><b>Metrics Agent</b><span>Velocity, throughput, cycle time, predictability, and capacity allocation.</span></li>
+      <li><b>Quality Agent</b><span>Defects, test stages, and release readiness.</span></li>
+    </ul>
+
+    <h2 class="strip-title">Where the 12 teams sit in the lifecycle</h2>
+    <ol class="strip" id="strip"></ol>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="tabs" role="tablist" aria-label="Report views" id="tabs"></div>
+
+  <main>
+    <section class="panel" id="panel-portfolio" role="tabpanel" aria-labelledby="tab-portfolio"></section>
+    <section class="panel" id="panel-metrics" role="tabpanel" aria-labelledby="tab-metrics" hidden></section>
+    <section class="panel" id="panel-quality" role="tabpanel" aria-labelledby="tab-quality" hidden></section>
+    <section class="panel" id="panel-review" role="tabpanel" aria-labelledby="tab-review" hidden></section>
+
+    <div class="about">
+      <h2>About this demo</h2>
+      <p>The agent names are generic and the data is invented. The page shows one idea: reporting from several sources can be drafted by agents, while a person decides what gets sent. Approve, edit, or reject the drafts in the review queue to see how that step works. Changes stay in your browser and reset when you reload the page.</p>
+    </div>
+  </main>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var PHASES = ["Product", "Design", "Build", "Test", "Release", "Operate"];
+  var RANK = { green: 0, amber: 1, red: 2 };
+  var LABEL = { green: "On track", amber: "Watch", red: "At risk" };
+
+  var pods = [
+    { name: "Client onboarding", phase: "Build", status: "green", pred: 92, cycle: 5.8, vel: 46, miles: 81, sev: [0,1,3,2], note: "Sprint goals met four weeks running. No open dependencies.", tests: ["prog","pend","pend","pend"] },
+    { name: "Payments hub", phase: "Test", status: "amber", pred: 84, cycle: 7.9, vel: 52, miles: 69, sev: [1,3,6,4], note: "The integration environment was down for two days. Release date holds if the rerun finishes by Friday.", tests: ["pass","prog","pend","pend"] },
+    { name: "Treasury tools", phase: "Test", status: "red", pred: 71, cycle: 9.8, vel: 33, miles: 54, sev: [3,5,9,5], note: "UAT start slipped a week. Two blocking defects and a data refresh are still open.", tests: ["pass","pass","block","pend"] },
+    { name: "Client portal", phase: "Release", status: "green", pred: 94, cycle: 5.2, vel: 38, miles: 93, sev: [0,0,2,2], note: "Release checklist is complete. Go-live review is scheduled.", tests: ["pass","pass","pass","pass"] },
+    { name: "Data platform", phase: "Build", status: "amber", pred: 80, cycle: 8.6, vel: 44, miles: 62, sev: [0,2,6,3], note: "Support work took 28% of capacity this month, up from 15%.", tests: ["prog","pend","pend","pend"] },
+    { name: "Fraud controls", phase: "Design", status: "green", pred: 90, cycle: 6.4, vel: 29, miles: 47, sev: [0,0,2,1], note: "Design sign-off is on track. One policy decision is still pending.", tests: ["pend","pend","pend","pend"] },
+    { name: "Reporting services", phase: "Operate", status: "green", pred: 95, cycle: 4.9, vel: 35, miles: 100, sev: [0,0,3,2], note: "Stable since release. No open incidents.", tests: ["pass","pass","pass","pass"] },
+    { name: "Mobile app", phase: "Build", status: "amber", pred: 82, cycle: 7.7, vel: 49, miles: 66, sev: [0,3,6,4], note: "A dependency on Identity services is two weeks late.", tests: ["prog","pend","pend","pend"] },
+    { name: "Identity services", phase: "Build", status: "amber", pred: 78, cycle: 8.9, vel: 37, miles: 58, sev: [1,2,6,3], note: "Owns the late dependency that affects the Mobile app. Adding a contractor is under review.", tests: ["prog","pend","pend","pend"] },
+    { name: "Pricing engine", phase: "Product", status: "green", pred: 88, cycle: 6.9, vel: 21, miles: 22, sev: [0,0,1,1], note: "Discovery is complete. The business case goes to investment review next week.", tests: ["pend","pend","pend","pend"] },
+    { name: "Notifications", phase: "Release", status: "green", pred: 91, cycle: 5.5, vel: 31, miles: 90, sev: [0,1,3,2], note: "Phased rollout is at 50% behind a feature flag. Flag-on and flag-off groups look similar so far.", tests: ["pass","pass","pass","prog"] },
+    { name: "Document management", phase: "Operate", status: "amber", pred: 83, cycle: 6.6, vel: 27, miles: 100, sev: [0,2,4,3], note: "Hypercare ticket volume is higher than expected. Two tickets are older than seven days.", tests: ["pass","pass","pass","pass"] }
+  ];
+
+  var weeks = ["W33","W34","W35","W36","W37","W38","W39","W40","W41","W42","W43","W44"];
+  var series = {
+    velocity:   [388,395,384,402,410,404,421,418,430,426,436,442],
+    throughput: [96,99,94,101,104,102,108,107,111,110,114,118],
+    cycle:      [8.6,8.4,8.7,8.3,8.1,8.1,7.7,7.5,7.4,7.3,7.1,7.0],
+    pred:       [74,76,75,78,79,79,81,82,83,83,84,85]
+  };
+  var allocation = [
+    { name: "New features", pct: 54, color: "#28398C" },
+    { name: "Technical debt", pct: 16, color: "#4F7A94" },
+    { name: "Defect fixing", pct: 14, color: "#B86A2B" },
+    { name: "Support and operations", pct: 11, color: "#7A5C8A" },
+    { name: "Planning", pct: 5, color: "#5F6F7A" }
+  ];
+  var stages = ["QA", "Integration", "UAT", "Operations readiness"];
+  var testLabel = { pass: "Passed", prog: "In progress", block: "Blocked", pend: "Not started" };
+
+  var reviews = [
+    { id: "r1", agent: "Status Agent", title: "Weekly executive summary",
+      text: "Six of 12 teams are on track, five need watching, and one is at risk. Treasury tools is the main concern: UAT start moved back a week because of two blocking defects and a pending data refresh. The Mobile app is waiting on a dependency from Identity services that is two weeks late. Delivery predictability is 85%, the highest in twelve weeks." },
+    { id: "r2", agent: "Status Agent", title: "Treasury tools: UAT start",
+      text: "Move the UAT start to November 9 and ask the data team to prioritize the refresh. Escalate to the program sponsor if the blocking defects are not closed by November 4." },
+    { id: "r3", agent: "Metrics Agent", title: "Data platform: capacity",
+      text: "Support work took 28% of Data platform capacity this month, up from 15%. Review the support rotation before the quarterly planning session." },
+    { id: "r4", agent: "Quality Agent", title: "Payments hub: defect trend",
+      text: "Open defects rose from 9 to 14 in two weeks, mostly after the integration environment outage. Hold a focused triage before release testing resumes." }
+  ];
+  var state = {};
+  function resetState() {
+    state = {};
+    reviews.forEach(function (r) { state[r.id] = { status: "pending", text: r.text, editing: false }; });
+  }
+  resetState();
+
+  /* ---------- helpers ---------- */
+  function $(sel) { return document.querySelector(sel); }
+  function sum(arr) { return arr.reduce(function (a, b) { return a + b; }, 0); }
+  function count(status) { return pods.filter(function (p) { return p.status === status; }).length; }
+  function pending() { return reviews.filter(function (r) { return state[r.id].status === "pending"; }).length; }
+  function pill(status) { return '<span class="pill ' + status + '">' + LABEL[status] + '</span>'; }
+
+  /* ---------- lifecycle strip ---------- */
+  function renderStrip() {
+    $("#strip").innerHTML = PHASES.map(function (ph) {
+      var inPhase = pods.filter(function (p) { return p.phase === ph; });
+      var worst = inPhase.reduce(function (w, p) { return Math.max(w, RANK[p.status]); }, 0);
+      var cls = worst === 2 ? "risk" : worst === 1 ? "watch" : "";
+      var attention = inPhase.filter(function (p) { return p.status !== "green"; }).length;
+      var sub = attention === 0 ? "All on track" : attention + (attention === 1 ? " needs attention" : " need attention");
+      return '<li class="phase ' + cls + '"><div class="name">' + ph + '</div><div class="count">' + inPhase.length +
+        '</div><div class="sub">' + (inPhase.length === 1 ? "team" : "teams") + ". " + sub + '</div></li>';
+    }).join("");
+  }
+
+  /* ---------- tabs ---------- */
+  var tabs = [
+    { id: "portfolio", label: "Portfolio status" },
+    { id: "metrics", label: "Delivery metrics" },
+    { id: "quality", label: "Testing and quality" },
+    { id: "review", label: "Review queue" }
+  ];
+  function renderTabs() {
+    var current = currentTab();
+    $("#tabs").innerHTML = tabs.map(function (t) {
+      var badge = t.id === "review" && pending() > 0 ? '<span class="badge" aria-label="' + pending() + ' drafts waiting">' + pending() + '</span>' : "";
+      return '<button class="tab" role="tab" id="tab-' + t.id + '" aria-selected="' + (t.id === current) +
+        '" aria-controls="panel-' + t.id + '" tabindex="' + (t.id === current ? 0 : -1) + '" data-tab="' + t.id + '">' + t.label + badge + '</button>';
+    }).join("");
+  }
+  var activeTab = "portfolio";
+  function validTab(h) { return tabs.some(function (t) { return t.id === h; }); }
+  function hashTab() {
+    try { var h = (location.hash || "").replace("#", ""); return validTab(h) ? h : null; } catch (err) { return null; }
+  }
+  function currentTab() { return activeTab; }
+  function showTab(id, focus) {
+    activeTab = id;
+    try { if (location.hash !== "#" + id) { history.replaceState(null, "", "#" + id); } } catch (err) { /* sandboxed preview: skip the link update */ }
+    tabs.forEach(function (t) { $("#panel-" + t.id).hidden = t.id !== id; });
+    renderTabs();
+    if (focus) { $("#tab-" + id).focus(); }
+  }
+  $("#tabs").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-tab]");
+    if (b) { showTab(b.getAttribute("data-tab"), false); }
+  });
+  $("#tabs").addEventListener("keydown", function (e) {
+    var ids = tabs.map(function (t) { return t.id; });
+    var i = ids.indexOf(currentTab());
+    if (e.key === "ArrowRight") { showTab(ids[(i + 1) % ids.length], true); e.preventDefault(); }
+    if (e.key === "ArrowLeft") { showTab(ids[(i + ids.length - 1) % ids.length], true); e.preventDefault(); }
+  });
+  window.addEventListener("hashchange", function () { var h = hashTab(); if (h && h !== activeTab) { showTab(h, false); } });
+
+  /* ---------- portfolio ---------- */
+  var filter = "all";
+  function renderPortfolio() {
+    var rows = pods.filter(function (p) { return filter === "all" || p.status === filter; });
+    var s1 = state.r1;
+    var tag = s1.status === "approved" ? '<span class="tag done">Approved</span>' :
+              s1.status === "rejected" ? '<span class="tag no">Rejected</span>' :
+              '<span class="tag">Draft, waiting for review</span>';
+    var link = s1.status === "pending" ? ' <button class="link" data-goto="review">Open the review queue</button>' : "";
+    var html = '<div class="stack">' +
+      '<div class="card"><div class="draft-head"><h2>Weekly executive summary</h2><span>' + tag + '</span></div>' +
+      '<p class="summary-text">' + escapeHtml(s1.text) + '</p>' +
+      '<p class="hint" style="margin:10px 0 0">Drafted by the Status Agent.' + link + '</p></div>' +
+      '<div><div class="filters" role="group" aria-label="Filter teams by status">' +
+      chip("all", "All 12") + chip("red", "At risk (" + count("red") + ")") + chip("amber", "Watch (" + count("amber") + ")") + chip("green", "On track (" + count("green") + ")") +
+      '</div><div class="scroll"><table><thead><tr><th>Team</th><th>Phase</th><th>Status</th><th>Predictability</th><th>Cycle time</th><th>Milestones done</th><th>What the agent noticed</th></tr></thead><tbody>' +
+      rows.map(function (p) {
+        return '<tr><td class="pod">' + p.name + '</td><td>' + p.phase + '</td><td>' + pill(p.status) + '</td>' +
+          '<td>' + meter(p.pred) + '</td><td>' + p.cycle.toFixed(1) + ' days</td><td>' + meter(p.miles) + '</td><td class="note">' + p.note + '</td></tr>';
+      }).join("") + '</tbody></table></div></div></div>';
+    $("#panel-portfolio").innerHTML = html;
+  }
+  function chip(v, label) { return '<button class="chip" data-filter="' + v + '" aria-pressed="' + (filter === v) + '">' + label + '</button>'; }
+  function meter(v) { return '<div class="meter"><i><b style="width:' + v + '%"></b></i>' + v + '%</div>'; }
+  function escapeHtml(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+  /* ---------- metrics ---------- */
+  function lineChart(vals, o) {
+    var W = 360, H = 150, l = 8, r = 48, t = 18, b = 22;
+    var iw = W - l - r, ih = H - t - b;
+    function x(i) { return l + iw * i / (vals.length - 1); }
+    function y(v) { return t + ih * (1 - (v - o.min) / (o.max - o.min)); }
+    var d = vals.map(function (v, i) { return (i ? "L" : "M") + x(i).toFixed(1) + " " + y(v).toFixed(1); }).join(" ");
+    var last = vals[vals.length - 1], first = vals[0];
+    var fmt = function (v) { return (o.dec ? v.toFixed(o.dec) : Math.round(v)) + (o.unit || ""); };
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + o.title + ' from ' + fmt(first) + ' to ' + fmt(last) + ' over twelve weeks">' +
+      [0, 0.5, 1].map(function (f) { var yy = t + ih * f; return '<line class="grid" x1="' + l + '" x2="' + (W - r) + '" y1="' + yy + '" y2="' + yy + '"/>'; }).join("") +
+      '<path class="ln" d="' + d + '"/>' +
+      '<circle class="dot" cx="' + x(0) + '" cy="' + y(first) + '" r="3"/>' +
+      '<circle class="dot" cx="' + x(vals.length - 1) + '" cy="' + y(last) + '" r="4"/>' +
+      '<text x="' + x(0) + '" y="' + (y(first) - 8) + '">' + fmt(first) + '</text>' +
+      '<text class="val" x="' + (x(vals.length - 1) + 8) + '" y="' + (y(last) + 4) + '">' + fmt(last) + '</text>' +
+      '<text x="' + l + '" y="' + (H - 6) + '">' + weeks[0] + '</text>' +
+      '<text x="' + (W - r) + '" y="' + (H - 6) + '" text-anchor="end">' + weeks[weeks.length - 1] + '</text></svg>';
+  }
+  function change(vals, goodWhenDown) {
+    var pct = Math.round(Math.abs(vals[vals.length - 1] - vals[0]) / vals[0] * 100);
+    var dir = vals[vals.length - 1] >= vals[0] ? "Up" : "Down";
+    return dir + " " + pct + "% over twelve weeks" + ((dir === "Down") === goodWhenDown ? ", which is the direction you want." : ".");
+  }
+  function renderMetrics() {
+    $("#panel-metrics").innerHTML =
+      '<h2>Delivery metrics</h2><p class="hint">Drafted by the Metrics Agent from the last twelve weeks of sample data. Portfolio totals add up the 12 teams.</p>' +
+      '<div class="grid2">' +
+      chartCard("Velocity", "Story points completed per week. " + change(series.velocity, false), lineChart(series.velocity, { min: 360, max: 460, title: "Velocity" })) +
+      chartCard("Throughput", "Work items finished per week. " + change(series.throughput, false), lineChart(series.throughput, { min: 85, max: 125, title: "Throughput" })) +
+      chartCard("Cycle time", "Average days from start to done. " + change(series.cycle, true), lineChart(series.cycle, { min: 6, max: 9, dec: 1, unit: " d", title: "Cycle time" })) +
+      chartCard("Delivery predictability", "Share of committed work delivered. " + change(series.pred, false), lineChart(series.pred, { min: 70, max: 90, unit: "%", title: "Delivery predictability" })) +
+      '</div>' +
+      '<div class="card" style="margin-top:16px"><h2>Where capacity went this month</h2><p class="hint">Share of total team capacity by type of work.</p>' +
+      '<div class="alloc" role="img" aria-label="' + allocation.map(function (a) { return a.name + " " + a.pct + " percent"; }).join(", ") + '">' +
+      allocation.map(function (a) { return '<div style="width:' + a.pct + '%;background:' + a.color + '">' + (a.pct >= 10 ? a.pct + "%" : "") + '</div>'; }).join("") + '</div>' +
+      '<ul class="legend">' + allocation.map(function (a) { return '<li><i style="background:' + a.color + '"></i>' + a.name + " " + a.pct + "%</li>"; }).join("") + '</ul></div>';
+  }
+  function chartCard(title, sub, svg) { return '<div class="card chart"><h3>' + title + '</h3><p>' + sub + '</p>' + svg + '</div>'; }
+
+  /* ---------- quality ---------- */
+  function renderQuality() {
+    var totals = [0, 0, 0, 0];
+    pods.forEach(function (p) { p.sev.forEach(function (n, i) { totals[i] += n; }); });
+    var open = sum(totals);
+    var max = Math.max.apply(null, pods.map(function (p) { return sum(p.sev); }));
+    var colors = ["var(--sev-critical)", "var(--sev-high)", "var(--sev-medium)", "var(--sev-low)"];
+    var names = ["Critical", "High", "Medium", "Low"];
+    var sorted = pods.slice().sort(function (a, b) { return sum(b.sev) - sum(a.sev); });
+
+    $("#panel-quality").innerHTML =
+      '<h2>Testing and quality</h2><p class="hint">Drafted by the Quality Agent from test management and defect data.</p>' +
+      '<div class="stats">' +
+      stat(open, "Open defects") + stat(totals[0], "Critical defects open") + stat("94%", "Test pass rate, last 30 days") + stat(5, "Defects found after release, last 30 days") + '</div>' +
+      '<div class="stack"><div class="card"><h2>Open defects by team</h2><p class="hint">Sorted by total. Bars show severity.</p><div class="bars">' +
+      sorted.map(function (p) {
+        var t = sum(p.sev);
+        return '<div class="barrow"><span>' + p.name + '</span><div class="bar" role="img" aria-label="' + p.name + ": " +
+          p.sev.map(function (n, i) { return n + " " + names[i].toLowerCase(); }).join(", ") + '" style="width:' + (t / max * 100) + '%">' +
+          p.sev.map(function (n, i) { return n ? '<span style="width:' + (n / t * 100) + '%;background:' + colors[i] + '" title="' + names[i] + ": " + n + '"></span>' : ""; }).join("") +
+          '</div><span class="tot">' + t + '</span></div>';
+      }).join("") + '</div><ul class="legend">' + names.map(function (n, i) { return '<li><i style="background:' + colors[i] + '"></i>' + n + '</li>'; }).join("") + '</ul></div>' +
+      '<div><h2>Test stages</h2><p class="hint">Where each team stands before release.</p><div class="scroll"><table><thead><tr><th>Team</th>' +
+      stages.map(function (s) { return '<th>' + s + '</th>'; }).join("") + '</tr></thead><tbody>' +
+      pods.map(function (p) { return '<tr><td class="pod">' + p.name + '</td>' + p.tests.map(function (t) { return '<td><span class="cell ' + t + '">' + testLabel[t] + '</span></td>'; }).join("") + '</tr>'; }).join("") +
+      '</tbody></table></div></div></div>';
+  }
+  function stat(n, l) { return '<div class="stat"><div class="n">' + n + '</div><div class="l">' + l + '</div></div>'; }
+
+  /* ---------- review queue ---------- */
+  function renderReview() {
+    var left = pending();
+    var html = '<h2>Review queue</h2><p class="hint">' +
+      (left ? left + (left === 1 ? " draft is" : " drafts are") + " waiting. Nothing is sent until you approve it." : "All drafts have been reviewed. Nothing was sent anywhere, because this is a demo.") +
+      '</p><div class="review">';
+    reviews.forEach(function (r) {
+      var s = state[r.id];
+      var tag = s.status === "approved" ? '<span class="tag done">Approved</span>' : s.status === "rejected" ? '<span class="tag no">Rejected</span>' : '<span class="tag">Waiting for review</span>';
+      html += '<div class="card item"><div class="draft-head"><h3>' + r.title + '</h3>' + tag + '</div><p class="who">Drafted by the ' + r.agent + '</p>';
+      if (s.status === "pending" && s.editing) {
+        html += '<label for="ta-' + r.id + '" class="hint" style="display:block;margin-bottom:6px">Edit the draft</label><textarea id="ta-' + r.id + '">' + escapeHtml(s.text) + '</textarea>' +
+          '<div class="actions" style="margin-top:10px"><button class="btn primary" data-act="save" data-id="' + r.id + '">Save and approve</button><button class="btn" data-act="cancel" data-id="' + r.id + '">Cancel</button></div>';
+      } else {
+        html += '<p class="body">' + escapeHtml(s.text) + '</p>';
+        if (s.status === "pending") {
+          html += '<div class="actions"><button class="btn primary" data-act="approve" data-id="' + r.id + '">Approve</button><button class="btn" data-act="edit" data-id="' + r.id + '">Edit</button><button class="btn" data-act="reject" data-id="' + r.id + '">Reject</button></div>';
+        } else {
+          html += '<div class="actions"><button class="btn" data-act="undo" data-id="' + r.id + '">Undo</button></div>';
+        }
+      }
+      html += '</div>';
+    });
+    html += '</div><div class="reset"><button class="btn" data-act="reset">Reset the demo</button></div>';
+    $("#panel-review").innerHTML = html;
+  }
+
+  document.addEventListener("click", function (e) {
+    var f = e.target.closest("[data-filter]");
+    if (f) { filter = f.getAttribute("data-filter"); renderPortfolio(); var again = document.querySelector('[data-filter="' + filter + '"]'); if (again) { again.focus(); } return; }
+    var g = e.target.closest("[data-goto]");
+    if (g) { showTab(g.getAttribute("data-goto"), true); return; }
+    var a = e.target.closest("[data-act]");
+    if (!a) { return; }
+    var act = a.getAttribute("data-act"), id = a.getAttribute("data-id");
+    if (act === "reset") { resetState(); }
+    else if (act === "approve") { state[id].status = "approved"; }
+    else if (act === "reject") { state[id].status = "rejected"; }
+    else if (act === "undo") { state[id].status = "pending"; state[id].editing = false; }
+    else if (act === "edit") { state[id].editing = true; }
+    else if (act === "cancel") { state[id].editing = false; }
+    else if (act === "save") {
+      var ta = document.getElementById("ta-" + id);
+      if (ta && ta.value.trim()) { state[id].text = ta.value.trim(); }
+      state[id].editing = false; state[id].status = "approved";
+    }
+    renderAll();
+    var target = id ? document.querySelector('[data-id="' + id + '"]') : null;
+    if (target) { target.focus(); }
+  });
+
+  function renderAll() { renderTabs(); renderPortfolio(); renderMetrics(); renderQuality(); renderReview(); }
+
+  renderStrip();
+  renderAll();
+  showTab(hashTab() || "portfolio", false);
+})();
+</script>
+</body>
+</html>
