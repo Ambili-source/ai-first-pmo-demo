@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AI delivery reporting demo (sample data)</title>
-<meta name="description" content="A demo of AI agents that draft delivery reporting across the product lifecycle, with a person reviewing each draft. All data is fictional.">
+<title>AI-First PMO | Executive Portfolio Intelligence (sample data)</title>
+<meta name="description" content="AI-First PMO | Executive Portfolio Intelligence: a demo of AI agents that draft delivery reporting across the product lifecycle, with a person reviewing each draft. All data is fictional.">
 <style>
   :root {
     --bg: #F2F5F7;
@@ -24,6 +24,13 @@
     --sev-high: #C9532B;
     --sev-medium: #D9A441;
     --sev-low: #A9B7C2;
+    --hero-bg: #1E2A6B;
+    --hero-ink: #FFFFFF;
+    --hero-muted: #C9D1F2;
+    --c1: #28398C;
+    --c2: #0E7C86;
+    --c3: #C2571A;
+    --c4: #8A3A8F;
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark) {
@@ -45,6 +52,13 @@
       --sev-high: #E58A5F;
       --sev-medium: #D9A441;
       --sev-low: #6F808D;
+      --hero-bg: #1A2350;
+      --hero-ink: #F1F4FF;
+      --hero-muted: #AEB9E6;
+      --c1: #93A5F2;
+      --c2: #4FC3CD;
+      --c3: #EE9A62;
+      --c4: #D08ED6;
       color-scheme: dark;
     }
   }
@@ -72,7 +86,7 @@
   }
   .notice strong { font-weight: 600; }
 
-  header.top { padding: 32px 0 20px; }
+  header.top { padding: 32px 0 30px; background: var(--hero-bg); color: var(--hero-ink); }
   h1 {
     font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
     font-weight: 600;
@@ -80,9 +94,9 @@
     line-height: 1.15;
     letter-spacing: -0.012em;
     margin: 0 0 10px;
-    max-width: 24ch;
+    max-width: none;
   }
-  .lede { color: var(--muted); max-width: 62ch; margin: 0; }
+  .lede { color: var(--hero-muted); max-width: 80ch; margin: 0; }
 
   .agents {
     display: grid;
@@ -101,6 +115,13 @@
     font-size: 0.9rem;
   }
   .agents b { display: block; font-weight: 600; margin-bottom: 2px; }
+  .agents li { color: var(--ink); }
+  .agents li:nth-child(1) { border-left-color: var(--c1); }
+  .agents li:nth-child(1) b { color: var(--c1); }
+  .agents li:nth-child(2) { border-left-color: var(--c2); }
+  .agents li:nth-child(2) b { color: var(--c2); }
+  .agents li:nth-child(3) { border-left-color: var(--c4); }
+  .agents li:nth-child(3) b { color: var(--c4); }
   .agents span { color: var(--muted); }
 
   /* Lifecycle strip */
@@ -114,17 +135,18 @@
     list-style: none;
   }
   .phase {
-    background: var(--surface);
-    border: 1px solid var(--line);
+    background: var(--green-soft);
+    color: var(--ink);
+    border: 1px solid transparent;
     border-top: 5px solid var(--green);
     border-radius: 4px;
     padding: 12px 12px 14px;
   }
-  .phase.watch { border-top-color: var(--amber); }
-  .phase.risk { border-top-color: var(--red); }
+  .phase.watch { border-top-color: var(--amber); background: var(--amber-soft); }
+  .phase.risk { border-top-color: var(--red); background: var(--red-soft); }
   .phase .name { font-weight: 600; font-size: 0.95rem; }
   .phase .count { font-family: "Iowan Old Style", Georgia, serif; font-size: 1.9rem; line-height: 1.1; margin: 6px 0 2px; }
-  .phase .sub { font-size: 0.82rem; color: var(--muted); }
+  .phase .sub { font-size: 0.82rem; color: var(--ink); opacity: 0.8; }
 
   /* Tabs */
   .tabs {
@@ -133,6 +155,7 @@
     margin: 32px 0 0;
     border-bottom: 1px solid var(--line);
     overflow-x: auto;
+    overflow-y: hidden;
   }
   .tab {
     appearance: none;
@@ -147,7 +170,7 @@
     white-space: nowrap;
     margin-bottom: -1px;
   }
-  .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--brand); }
+  .tab[aria-selected="true"] { color: var(--brand); border-bottom-color: var(--brand); }
   .tab:hover { color: var(--ink); }
   .badge {
     display: inline-block;
@@ -161,6 +184,7 @@
     text-align: center;
   }
   :focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+  .tab:focus-visible { outline-offset: -3px; }
 
   main { padding: 24px 0 56px; }
   .panel[hidden] { display: none; }
@@ -174,6 +198,7 @@
     padding: 18px 20px;
   }
   .stack > * + * { margin-top: 20px; }
+  .summary-card { border-left: 5px solid var(--c1); }
 
   .draft-head { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
   .tag {
@@ -187,7 +212,7 @@
   }
   .tag.done { background: var(--green-soft); color: var(--green); }
   .tag.no { background: var(--red-soft); color: var(--red); }
-  .summary-text { margin: 0; max-width: 70ch; }
+  .summary-text { margin: 0; }
   .link {
     background: none; border: 0; padding: 0; font: inherit;
     color: var(--brand); text-decoration: underline; cursor: pointer;
@@ -211,7 +236,7 @@
   .scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
   table { border-collapse: collapse; width: 100%; min-width: 820px; font-size: 0.92rem; }
   th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
-  th { font-weight: 600; color: var(--muted); font-size: 0.85rem; background: var(--surface); }
+  th { font-weight: 600; color: var(--ink); font-size: 0.85rem; background: var(--brand-soft); }
   tr:last-child td { border-bottom: 0; }
   td.pod { font-weight: 600; white-space: nowrap; }
   td.note { color: var(--muted); min-width: 260px; }
@@ -225,12 +250,13 @@
 
   /* Metrics */
   .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-  .chart h3 { font-size: 0.98rem; margin: 0; font-weight: 600; }
+  .chart { border-top: 5px solid var(--c); }
+  .chart h3 { font-size: 0.98rem; margin: 0; font-weight: 600; color: var(--c); }
   .chart p { margin: 2px 0 8px; color: var(--muted); font-size: 0.86rem; }
   .chart svg { width: 100%; height: auto; display: block; }
   .chart svg .grid { stroke: var(--line); stroke-width: 1; }
-  .chart svg .ln { fill: none; stroke: var(--brand); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
-  .chart svg .dot { fill: var(--brand); }
+  .chart svg .ln { fill: none; stroke: var(--c); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+  .chart svg .dot { fill: var(--c); }
   .chart svg text { fill: var(--muted); font-size: 10px; font-family: inherit; }
   .chart svg text.val { fill: var(--ink); font-size: 12px; font-weight: 600; }
 
@@ -242,8 +268,13 @@
   /* Quality */
   .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
   .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; }
+  .stat.s-brand { background: var(--brand-soft); border-color: transparent; }
+  .stat.s-red { background: var(--red-soft); border-color: transparent; }
+  .stat.s-green { background: var(--green-soft); border-color: transparent; }
+  .stat.s-amber { background: var(--amber-soft); border-color: transparent; }
+  .stat .l { color: var(--ink); opacity: 0.8; }
   .stat .n { font-family: "Iowan Old Style", Georgia, serif; font-size: 1.8rem; line-height: 1.1; }
-  .stat .l { color: var(--muted); font-size: 0.86rem; }
+  .stat .l { font-size: 0.86rem; }
 
   .bars { display: grid; gap: 7px; }
   .barrow { display: grid; grid-template-columns: 150px 1fr 30px; gap: 10px; align-items: center; font-size: 0.9rem; }
@@ -261,13 +292,16 @@
 
   /* Review */
   .review { display: grid; gap: 14px; }
+  .item.a-status { border-left: 5px solid var(--c1); }
+  .item.a-metrics { border-left: 5px solid var(--c2); }
+  .item.a-quality { border-left: 5px solid var(--c4); }
   .item h3 { font-size: 1rem; margin: 0; font-weight: 600; }
   .item .who { color: var(--muted); font-size: 0.86rem; margin: 2px 0 10px; }
   .item textarea {
     width: 100%; min-height: 90px; font: inherit; color: var(--ink); background: var(--bg);
     border: 1px solid var(--line); border-radius: 4px; padding: 8px 10px; resize: vertical;
   }
-  .item p.body { margin: 0 0 12px; max-width: 70ch; }
+  .item p.body { margin: 0 0 12px; }
   .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
   .btn {
     font: inherit; font-weight: 600; font-size: 0.92rem; cursor: pointer;
@@ -278,7 +312,53 @@
   .btn:hover { filter: brightness(0.96); }
   .reset { margin-top: 16px; }
 
-  .about { margin-top: 36px; color: var(--muted); font-size: 0.9rem; max-width: 70ch; }
+
+  /* Executive view */
+  .exec-top { display: grid; grid-template-columns: 1fr 270px; padding: 0; overflow: hidden; border-left: 5px solid var(--c1); }
+  .exec-main { padding: 20px 22px; min-width: 0; }
+  .exec-side { padding: 20px; border-left: 1px solid var(--line); background: var(--brand-soft); display: flex; flex-direction: column; gap: 14px; font-size: 0.9rem; }
+  .exec-side dl { margin: 0; display: grid; gap: 10px; }
+  .exec-side dt { color: var(--muted); font-size: 0.82rem; }
+  .exec-side dd { margin: 0; font-weight: 600; }
+  .exec-side .btn { width: 100%; }
+  .exec-side .note { margin: 0; color: var(--muted); font-size: 0.84rem; }
+  .exec-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .exec-cols h3 { font-size: 0.98rem; margin: 0 0 10px; font-weight: 600; }
+  .exec-cols ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 0.9rem; }
+  .exec-cols li { display: grid; grid-template-columns: 1.3em 1fr; gap: 6px; }
+  .mk-good { color: var(--green); }
+  .mk-bad { color: var(--red); }
+  .mk-flat { color: var(--amber); }
+  .attn li { grid-template-columns: 3.6em 1fr; }
+  .attn li b { font-weight: 600; }
+  .attn li .who { display: block; color: var(--muted); font-size: 0.84rem; }
+  .health { display: flex; height: 22px; border-radius: 4px; overflow: hidden; gap: 2px; }
+  .health i { display: block; }
+  .health-key { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 10px; text-align: center; font-size: 0.86rem; }
+  .health-key b { display: block; font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; font-size: 1.5rem; line-height: 1.1; font-weight: 600; }
+  .kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .kpi { border-radius: 6px; padding: 14px 16px; color: var(--ink); display: flex; flex-direction: column; }
+  .kpi.s-green { background: var(--green-soft); }
+  .kpi.s-amber { background: var(--amber-soft); }
+  .kpi.s-red { background: var(--red-soft); }
+  .kpi .k-label { font-size: 0.86rem; font-weight: 600; }
+  .kpi .k-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 8px; margin: 6px 0 2px; }
+  .kpi .k-value { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; font-size: 1.9rem; line-height: 1.1; }
+  .kpi .viz { width: 62px; height: 28px; flex: none; }
+  .kpi .k-target { font-size: 0.82rem; opacity: 0.85; }
+  .kpi .trend { font-size: 0.82rem; font-weight: 600; margin: 6px 0 10px; }
+  .kpi .trend.good { color: var(--green); }
+  .kpi .trend.bad { color: var(--red); }
+  .kpi .trend.flat { color: var(--amber); }
+  .kpi .pill { align-self: flex-start; margin-top: auto; }
+  .exec-bottom { display: grid; grid-template-columns: 3fr 2fr; gap: 16px; align-items: start; }
+  .exec-bottom table { min-width: 460px; }
+  .exec-bottom td.money { font-weight: 600; white-space: nowrap; }
+  .exec-bottom td small { display: block; color: var(--muted); font-size: 0.82rem; margin-top: 2px; }
+  .footnote { color: var(--muted); font-size: 0.86rem; margin: 0; }
+  .btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+
+  .about { margin-top: 36px; color: var(--muted); font-size: 0.9rem; }
   .about h2 { color: var(--ink); }
 
   @media (max-width: 860px) {
@@ -286,10 +366,17 @@
     .agents { grid-template-columns: 1fr; }
     .grid2 { grid-template-columns: 1fr; }
     .stats { grid-template-columns: repeat(2, 1fr); }
+    .kpis { grid-template-columns: repeat(3, 1fr); }
+    .exec-top { grid-template-columns: 1fr; }
+    .exec-side { border-left: 0; border-top: 1px solid var(--line); }
+    .exec-cols { grid-template-columns: 1fr; }
+    .exec-bottom { grid-template-columns: 1fr; }
     .barrow { grid-template-columns: 110px 1fr 28px; }
   }
   @media (max-width: 480px) {
     .strip { grid-template-columns: repeat(2, 1fr); }
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+    .kpi .viz { display: none; }
     .wrap { padding: 0 14px; }
   }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
@@ -303,7 +390,7 @@
 
 <header class="top">
   <div class="wrap">
-    <h1>Delivery reporting across the product lifecycle</h1>
+    <h1>AI-First PMO | Executive Portfolio Intelligence</h1>
     <p class="lede">Three agents read delivery, metrics, and test data, then draft the reporting. A person reviews each draft before anything goes to leadership. The sample company is Larkspur Financial, week of October 26.</p>
 
     <ul class="agents">
@@ -321,14 +408,15 @@
   <div class="tabs" role="tablist" aria-label="Report views" id="tabs"></div>
 
   <main>
-    <section class="panel" id="panel-portfolio" role="tabpanel" aria-labelledby="tab-portfolio"></section>
+    <section class="panel" id="panel-executive" role="tabpanel" aria-labelledby="tab-executive"></section>
+    <section class="panel" id="panel-portfolio" role="tabpanel" aria-labelledby="tab-portfolio" hidden></section>
     <section class="panel" id="panel-metrics" role="tabpanel" aria-labelledby="tab-metrics" hidden></section>
     <section class="panel" id="panel-quality" role="tabpanel" aria-labelledby="tab-quality" hidden></section>
     <section class="panel" id="panel-review" role="tabpanel" aria-labelledby="tab-review" hidden></section>
 
     <div class="about">
       <h2>About this demo</h2>
-      <p>The agent names are generic and the data is invented. The page shows one idea: reporting from several sources can be drafted by agents, while a person decides what gets sent. Approve, edit, or reject the drafts in the review queue to see how that step works. Changes stay in your browser and reset when you reload the page.</p>
+      <p>The agent names are generic and the data is invented. The page shows one idea: reporting from several sources can be drafted by agents, while a person decides what gets sent. Approve, edit, or reject the drafts in the review queue to see how that step works, then return to the Executive view. Changes stay in your browser and reset when you reload the page.</p>
     </div>
   </main>
 </div>
@@ -384,7 +472,9 @@
       text: "Open defects rose from 9 to 14 in two weeks, mostly after the integration environment outage. Hold a focused triage before release testing resumes." }
   ];
   var state = {};
+  var sent = false;
   function resetState() {
+    sent = false;
     state = {};
     reviews.forEach(function (r) { state[r.id] = { status: "pending", text: r.text, editing: false }; });
   }
@@ -412,6 +502,7 @@
 
   /* ---------- tabs ---------- */
   var tabs = [
+    { id: "executive", label: "Executive view" },
     { id: "portfolio", label: "Portfolio status" },
     { id: "metrics", label: "Delivery metrics" },
     { id: "quality", label: "Testing and quality" },
@@ -425,7 +516,7 @@
         '" aria-controls="panel-' + t.id + '" tabindex="' + (t.id === current ? 0 : -1) + '" data-tab="' + t.id + '">' + t.label + badge + '</button>';
     }).join("");
   }
-  var activeTab = "portfolio";
+  var activeTab = "executive";
   function validTab(h) { return tabs.some(function (t) { return t.id === h; }); }
   function hashTab() {
     try { var h = (location.hash || "").replace("#", ""); return validTab(h) ? h : null; } catch (err) { return null; }
@@ -450,30 +541,117 @@
   });
   window.addEventListener("hashchange", function () { var h = hashTab(); if (h && h !== activeTab) { showTab(h, false); } });
 
-  /* ---------- portfolio ---------- */
-  var filter = "all";
-  function renderPortfolio() {
-    var rows = pods.filter(function (p) { return filter === "all" || p.status === filter; });
+
+  /* ---------- executive view ---------- */
+  var risks = [
+    { team: "Treasury tools", title: "UAT start delayed one week by blocking defects and a data refresh", value: 1.8, step: "Approve the recovery plan", owner: "Treasury program lead", date: "Nov 4", level: "High" },
+    { team: "Mobile app", title: "Identity services dependency is two weeks late", value: 0.9, step: "Add a contractor to Identity services", owner: "Identity services lead", date: "Nov 6", level: "Medium" },
+    { team: "Data platform", title: "Support work is taking capacity from planned work", value: 0.4, step: "Review the support rotation at planning", owner: "Data platform lead", date: "Nov 12", level: "Medium" }
+  ];
+  var attention = [
+    { what: "Prioritize the Treasury data refresh ahead of other data team requests", who: "Data and analytics leadership", date: "Nov 2" },
+    { what: "Approve one contractor for Identity services, about $85K through January", who: "Technology leadership", date: "Nov 3" },
+    { what: "Accept a November 9 UAT start for Treasury tools", who: "Program sponsor", date: "Nov 4" }
+  ];
+  var changes = [
+    { mk: "▲", cls: "good", text: "Delivery predictability up 1 point (84% to 85%)" },
+    { mk: "▼", cls: "bad", text: "Treasury tools UAT start moved back 1 week" },
+    { mk: "●", cls: "flat", text: "Mobile app dependency is still late" },
+    { mk: "▲", cls: "good", text: "Value at risk down $0.4M ($3.5M to $3.1M)" }
+  ];
+  var upcoming = [
+    { name: "Release 1", team: "Client portal", date: "Nov 5, 2026", status: "green" },
+    { name: "Release 2", team: "Notifications", date: "Nov 12, 2026", status: "green" },
+    { name: "Release 3", team: "Payments hub", date: "Nov 18, 2026", status: "amber" },
+    { name: "Release 4", team: "Treasury tools", date: "Nov 24, 2026", status: "red" }
+  ];
+  function spark(vals, color) {
+    var w = 62, h = 28, min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
+    if (max === min) { max = min + 1; }
+    var pts = vals.map(function (v, i) { return (2 + i * (w - 4) / (vals.length - 1)).toFixed(1) + "," + (h - 3 - (v - min) / (max - min) * (h - 7)).toFixed(1); }).join(" ");
+    var last = pts.split(" ").pop().split(",");
+    return '<svg class="viz" viewBox="0 0 ' + w + ' ' + h + '" aria-hidden="true" style="color:' + color + '"><polyline points="' + pts + '" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="' + last[0] + '" cy="' + last[1] + '" r="2.6" fill="currentColor"/></svg>';
+  }
+  function miniBars(vals, color) {
+    var w = 62, h = 28, max = Math.max.apply(null, vals), bw = 8, gap = (w - vals.length * bw) / (vals.length - 1);
+    return '<svg class="viz" viewBox="0 0 ' + w + ' ' + h + '" aria-hidden="true" style="color:' + color + '">' + vals.map(function (v, i) {
+      var bh = Math.max(3, v / max * (h - 2));
+      return '<rect x="' + (i * (bw + gap)).toFixed(1) + '" y="' + (h - bh).toFixed(1) + '" width="' + bw + '" height="' + bh.toFixed(1) + '" rx="1.5" fill="currentColor"/>';
+    }).join("") + '</svg>';
+  }
+  function renderExecutive() {
+    var total = pods.length;
+    var atRisk = count("red"), watch = count("amber"), good = count("green");
+    var pred = Math.round(sum(pods.map(function (p) { return p.pred; })) / total);
+    var vr = sum(risks.map(function (r) { return r.value; }));
     var s1 = state.r1;
     var tag = s1.status === "approved" ? '<span class="tag done">Approved</span>' :
               s1.status === "rejected" ? '<span class="tag no">Rejected</span>' :
               '<span class="tag">Draft, waiting for review</span>';
-    var link = s1.status === "pending" ? ' <button class="link" data-goto="review">Open the review queue</button>' : "";
+    var link = s1.status === "pending" ? '<button class="link" data-goto="review">Open the review queue</button>' : "";
+    var canSend = s1.status === "approved";
+    var isSent = sent && canSend;
+    var sendNote = isSent ? 'Demo only: nothing was sent.' : canSend ? 'The summary is approved and ready to go.' : 'Approve the weekly summary to turn this on.';
+
+    var kpis = [
+      { label: "Delivery predictability", value: pred + "%", target: "Target 90%", trend: "Up 1 point vs last week", tcls: "good", mk: "▲", cls: pred >= 90 ? "green" : "amber", viz: spark(series.pred.slice(-6), "var(--green)") },
+      { label: "Teams at risk", value: atRisk + " of " + total, target: "Target 0", trend: "No change vs last week", tcls: "flat", mk: "●", cls: atRisk ? "red" : "green", viz: miniBars([3, 2, 2, 1, 1, atRisk], "var(--red)") },
+      { label: "Spend against plan", value: "96%", target: "$14.2M of $14.8M planned to date", trend: "Up 1 point, within tolerance", tcls: "good", mk: "▲", cls: "green", viz: spark([92, 93, 94, 94, 95, 96], "var(--green)") },
+      { label: "Value at risk", value: "$" + vr.toFixed(1) + "M", target: "Of $22M committed value", trend: "Down $0.4M vs last week", tcls: "good", mk: "▼", cls: "amber", viz: spark([4.6, 4.4, 4.1, 3.9, 3.5, 3.1], "var(--amber)") },
+      { label: "Releases on schedule", value: "3 of 4", target: "Next 30 days, target all 4", trend: "1 fewer than last week", tcls: "bad", mk: "▼", cls: "amber", viz: miniBars([4, 4, 4, 4, 4, 3], "var(--amber)") }
+    ];
+
+    $("#panel-executive").innerHTML = '<div class="stack">' +
+      '<div class="card exec-top"><div class="exec-main">' +
+        '<div class="draft-head"><h2>Weekly executive summary</h2>' + tag + '</div>' +
+        '<p class="summary-text">' + escapeHtml(s1.text) + '</p>' +
+        '<div class="exec-cols">' +
+          '<div><h3>Key changes vs last week</h3><ul>' + changes.map(function (c) { return '<li><span class="mk-' + c.cls + '" aria-hidden="true">' + c.mk + '</span><span>' + c.text + '</span></li>'; }).join("") + '</ul></div>' +
+          '<div class="attn"><h3>Leadership attention required</h3><ul>' + attention.map(function (d) { return '<li><b>' + d.date + '</b><span>' + d.what + '<span class="who">' + d.who + '</span></span></li>'; }).join("") + '</ul></div>' +
+          '<div><h3>Overall portfolio health</h3><div class="health" role="img" aria-label="' + good + ' on track, ' + watch + ' watch, ' + atRisk + ' at risk"><i style="width:' + (good / total * 100) + '%;background:var(--green)"></i><i style="width:' + (watch / total * 100) + '%;background:var(--amber)"></i><i style="width:' + (atRisk / total * 100) + '%;background:var(--red)"></i></div>' +
+          '<div class="health-key"><span><b style="color:var(--green)">' + good + '</b>On track</span><span><b style="color:var(--amber)">' + watch + '</b>Watch</span><span><b style="color:var(--red)">' + atRisk + '</b>At risk</span></div></div>' +
+        '</div></div>' +
+        '<aside class="exec-side"><dl>' +
+          '<div><dt>Drafted by</dt><dd>Status Agent</dd></div>' +
+          '<div><dt>Review status</dt><dd>' + tag + (link ? '<br>' + link : '') + '</dd></div>' +
+          '<div><dt>Data sources</dt><dd>Delivery tracker, test management, and financials (sample)</dd></div>' +
+          '<div><dt>Sample data as of</dt><dd>Oct 29, 2026</dd></div>' +
+        '</dl><div><button class="btn primary" data-act="send"' + (canSend ? "" : " disabled") + '>Send to leadership</button><p class="note" style="margin-top:8px">' + sendNote + '</p></div></aside></div>' +
+
+      '<div class="kpis">' + kpis.map(function (k) {
+        return '<div class="kpi s-' + k.cls + '"><div class="k-label">' + k.label + '</div><div class="k-row"><div class="k-value">' + k.value + '</div>' + k.viz + '</div>' +
+          '<div class="k-target">' + k.target + '</div><div class="trend ' + k.tcls + '"><span aria-hidden="true">' + k.mk + '</span> ' + k.trend + '</div>' + pill(k.cls) + '</div>';
+      }).join("") + '</div>' +
+
+      '<div class="exec-bottom">' +
+        '<div><h2>Top risks</h2><p class="hint">Sorted by business impact.</p><div class="scroll"><table><thead><tr><th>Team</th><th>Risk</th><th>Business impact</th><th>Next step</th><th>Level</th></tr></thead><tbody>' +
+        risks.map(function (r) {
+          return '<tr><td class="pod">' + r.team + '</td><td>' + r.title + '</td><td class="money">$' + r.value.toFixed(1) + 'M</td><td>' + r.step + '<small>' + r.owner + ', by ' + r.date + '</small></td><td><span class="pill ' + (r.level === "High" ? "red" : "amber") + '">' + r.level + '</span></td></tr>';
+        }).join("") + '</tbody></table></div></div>' +
+        '<div><h2>Upcoming releases</h2><p class="hint">Next 30 days.</p><div class="scroll"><table><thead><tr><th>Release</th><th>Team</th><th>Planned date</th><th>Status</th></tr></thead><tbody>' +
+        upcoming.map(function (u) { return '<tr><td class="pod">' + u.name + '</td><td>' + u.team + '</td><td>' + u.date + '</td><td>' + pill(u.status) + '</td></tr>'; }).join("") +
+        '</tbody></table></div></div>' +
+      '</div>' +
+      '<p class="footnote">Value at risk is the dollar value of approved initiatives that depends on work that is late or at risk. Spend, value, and date figures are invented for this demo.</p></div>';
+  }
+
+  /* ---------- portfolio ---------- */
+  var filter = "all";
+  function renderPortfolio() {
+    var rows = pods.filter(function (p) { return filter === "all" || p.status === filter; });
     var html = '<div class="stack">' +
-      '<div class="card"><div class="draft-head"><h2>Weekly executive summary</h2><span>' + tag + '</span></div>' +
-      '<p class="summary-text">' + escapeHtml(s1.text) + '</p>' +
-      '<p class="hint" style="margin:10px 0 0">Drafted by the Status Agent.' + link + '</p></div>' +
+      '<p class="hint" style="margin:0">Detail for each team. The summary, top risks, and decisions are on the Executive view.</p>' +
       '<div><div class="filters" role="group" aria-label="Filter teams by status">' +
       chip("all", "All 12") + chip("red", "At risk (" + count("red") + ")") + chip("amber", "Watch (" + count("amber") + ")") + chip("green", "On track (" + count("green") + ")") +
       '</div><div class="scroll"><table><thead><tr><th>Team</th><th>Phase</th><th>Status</th><th>Predictability</th><th>Cycle time</th><th>Milestones done</th><th>What the agent noticed</th></tr></thead><tbody>' +
       rows.map(function (p) {
         return '<tr><td class="pod">' + p.name + '</td><td>' + p.phase + '</td><td>' + pill(p.status) + '</td>' +
-          '<td>' + meter(p.pred) + '</td><td>' + p.cycle.toFixed(1) + ' days</td><td>' + meter(p.miles) + '</td><td class="note">' + p.note + '</td></tr>';
+          '<td>' + meter(p.pred, "var(--" + p.status + ")") + '</td><td>' + p.cycle.toFixed(1) + ' days</td><td>' + meter(p.miles, "var(--c2)") + '</td><td class="note">' + p.note + '</td></tr>';
       }).join("") + '</tbody></table></div></div></div>';
     $("#panel-portfolio").innerHTML = html;
   }
   function chip(v, label) { return '<button class="chip" data-filter="' + v + '" aria-pressed="' + (filter === v) + '">' + label + '</button>'; }
-  function meter(v) { return '<div class="meter"><i><b style="width:' + v + '%"></b></i>' + v + '%</div>'; }
+  function meter(v, c) { return '<div class="meter"><i><b style="width:' + v + '%;background:' + c + '"></b></i>' + v + '%</div>'; }
   function escapeHtml(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 
   /* ---------- metrics ---------- */
@@ -514,7 +692,7 @@
       allocation.map(function (a) { return '<div style="width:' + a.pct + '%;background:' + a.color + '">' + (a.pct >= 10 ? a.pct + "%" : "") + '</div>'; }).join("") + '</div>' +
       '<ul class="legend">' + allocation.map(function (a) { return '<li><i style="background:' + a.color + '"></i>' + a.name + " " + a.pct + "%</li>"; }).join("") + '</ul></div>';
   }
-  function chartCard(title, sub, svg) { return '<div class="card chart"><h3>' + title + '</h3><p>' + sub + '</p>' + svg + '</div>'; }
+  function chartCard(title, sub, svg) { var cc = { "Velocity": "var(--c1)", "Throughput": "var(--c2)", "Cycle time": "var(--c3)", "Delivery predictability": "var(--c4)" }; return '<div class="card chart" style="--c:' + cc[title] + '"><h3>' + title + '</h3><p>' + sub + '</p>' + svg + '</div>'; }
 
   /* ---------- quality ---------- */
   function renderQuality() {
@@ -529,7 +707,7 @@
     $("#panel-quality").innerHTML =
       '<h2>Testing and quality</h2><p class="hint">Drafted by the Quality Agent from test management and defect data.</p>' +
       '<div class="stats">' +
-      stat(open, "Open defects") + stat(totals[0], "Critical defects open") + stat("94%", "Test pass rate, last 30 days") + stat(5, "Defects found after release, last 30 days") + '</div>' +
+      stat(open, "Open defects", "brand") + stat(totals[0], "Critical defects open", "red") + stat("94%", "Test pass rate, last 30 days", "green") + stat(5, "Defects found after release, last 30 days", "amber") + '</div>' +
       '<div class="stack"><div class="card"><h2>Open defects by team</h2><p class="hint">Sorted by total. Bars show severity.</p><div class="bars">' +
       sorted.map(function (p) {
         var t = sum(p.sev);
@@ -543,7 +721,7 @@
       pods.map(function (p) { return '<tr><td class="pod">' + p.name + '</td>' + p.tests.map(function (t) { return '<td><span class="cell ' + t + '">' + testLabel[t] + '</span></td>'; }).join("") + '</tr>'; }).join("") +
       '</tbody></table></div></div></div>';
   }
-  function stat(n, l) { return '<div class="stat"><div class="n">' + n + '</div><div class="l">' + l + '</div></div>'; }
+  function stat(n, l, c) { return '<div class="stat s-' + c + '"><div class="n">' + n + '</div><div class="l">' + l + '</div></div>'; }
 
   /* ---------- review queue ---------- */
   function renderReview() {
@@ -554,7 +732,7 @@
     reviews.forEach(function (r) {
       var s = state[r.id];
       var tag = s.status === "approved" ? '<span class="tag done">Approved</span>' : s.status === "rejected" ? '<span class="tag no">Rejected</span>' : '<span class="tag">Waiting for review</span>';
-      html += '<div class="card item"><div class="draft-head"><h3>' + r.title + '</h3>' + tag + '</div><p class="who">Drafted by the ' + r.agent + '</p>';
+      html += '<div class="card item a-' + r.agent.split(" ")[0].toLowerCase() + '"><div class="draft-head"><h3>' + r.title + '</h3>' + tag + '</div><p class="who">Drafted by the ' + r.agent + '</p>';
       if (s.status === "pending" && s.editing) {
         html += '<label for="ta-' + r.id + '" class="hint" style="display:block;margin-bottom:6px">Edit the draft</label><textarea id="ta-' + r.id + '">' + escapeHtml(s.text) + '</textarea>' +
           '<div class="actions" style="margin-top:10px"><button class="btn primary" data-act="save" data-id="' + r.id + '">Save and approve</button><button class="btn" data-act="cancel" data-id="' + r.id + '">Cancel</button></div>';
@@ -582,8 +760,9 @@
     var act = a.getAttribute("data-act"), id = a.getAttribute("data-id");
     if (act === "reset") { resetState(); }
     else if (act === "approve") { state[id].status = "approved"; }
-    else if (act === "reject") { state[id].status = "rejected"; }
-    else if (act === "undo") { state[id].status = "pending"; state[id].editing = false; }
+    else if (act === "reject") { state[id].status = "rejected"; if (id === "r1") { sent = false; } }
+    else if (act === "undo") { state[id].status = "pending"; state[id].editing = false; if (id === "r1") { sent = false; } }
+    else if (act === "send") { sent = true; }
     else if (act === "edit") { state[id].editing = true; }
     else if (act === "cancel") { state[id].editing = false; }
     else if (act === "save") {
@@ -596,11 +775,11 @@
     if (target) { target.focus(); }
   });
 
-  function renderAll() { renderTabs(); renderPortfolio(); renderMetrics(); renderQuality(); renderReview(); }
+  function renderAll() { renderTabs(); renderExecutive(); renderPortfolio(); renderMetrics(); renderQuality(); renderReview(); }
 
   renderStrip();
   renderAll();
-  showTab(hashTab() || "portfolio", false);
+  showTab(hashTab() || "executive", false);
 })();
 </script>
 </body>
